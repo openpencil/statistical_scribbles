@@ -194,7 +194,7 @@ padjust_check <- p.adjust(p = pdata$pvalues, method = "BH")
 pdata[which(abs(pdata$Smythhack_monotonic - pdata$padjust_check) > 0.01), ]
 
 # Compute the FP, FN and correct calls.
-pdata$smythhack_h0reject <- ifelse(pdata$Smythhack_adjusted <= 0.05, "rejecth0", "accepth0")
+pdata$smythhack_h0reject <- ifelse(pdata$Smythhack_monotonic <= 0.05, "rejecth0", "accepth0")
 pdata$smythhack_error <- ifelse(pdata$annot == "nodiff" & pdata$smythhack_h0reject == "rejecth0",
                                 "FalsePositive",
                                  ifelse(pdata$annot == "diff" & pdata$smythhack_h0reject == "accepth0",

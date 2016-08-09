@@ -46,6 +46,7 @@ ggdata <- data.frame(Counts = c(group1, group2), stringsAsFactors = F)
 #' Add a column with the group label
 ggdata$group <- c(rep(x = "group1", times = length(group1)),
                   rep(x = "group2", times = length(group2)))
+
 #' Call ggplot, define the dataframe for plotting, define the x and y axis
 p <- ggplot(data = ggdata, mapping = aes(x = group, y = Counts))
 #' Draw a boxplot
@@ -63,6 +64,9 @@ visualize_distribution(datasub = ggdata, name_of_column_to_plot = "Counts", fill
 #' THINK: Do you need formal statistics to establish differences? Why or Why not?
 #' What is the null hypothesis?
 #' What is the alternative hypothesis?
+
+#' Example of one hypothesis test
+tstat <- t.test(x = group1, y = group2)
 
 #' #### SECTION II: What is multiple hypothesis testing? ####
 
@@ -100,6 +104,11 @@ table(pdata$annot)
 #' We want only 0.05 errors per test. (i.e. <1 errors per test).
 #' BUT when we do 10K tests, these errors compound to 0.05 * 10000 = 500 errors.
 #' Let's look at the data to see how many errors we netted by doing 10000 tests.
+#' Questions:
+#' But why are there more false-positives than false-negatives when there is no correction?
+#' What are degrees of freedom?
+#' What is the difference in the distribution of the null and the distribution of the non-null?
+#' What is a p-value?
 
 pdata$nocorrection_h0reject <- ifelse(pdata$pvalues <= 0.05, "rejecth0", "accepth0")
 

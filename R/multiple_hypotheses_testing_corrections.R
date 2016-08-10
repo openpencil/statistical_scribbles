@@ -106,7 +106,7 @@ table(pdata$annot)
 #' Let's look at the data to see how many errors we netted by doing 10000 tests.
 #' Questions:
 #' But why are there more false-positives than false-negatives when there is no correction?
-#' What are degrees of freedom? Number of samples - parameter that are estimated.
+#' What are degrees of freedom? Number of samples - number of parameters that are estimated (e.g. the mean)
 #' What is the difference in the distribution of the null and the distribution of the non-null?
 #' What is a p-value?
 
@@ -116,13 +116,13 @@ pdata$nocorrection_error <- ifelse(pdata$annot == "nodiff" & pdata$nocorrection_
                                    "FalsePositives",
                                    #' False positives: When there were no differences between the groups
                                    #' (i.e. null hypothesis is correct), we wrongly rejected the null
-                                   #' hypothesis. In other words, we called a gene differentially
+                                   #' hypothesis. In genomics, we called a gene differentially
                                    #' expressed when it actually is not differentially expressed.
                                    ifelse(pdata$annot == "diff" & pdata$nocorrection_h0reject == "accepth0",
                                           "FalseNegatives",
                                           #' False negatives: When there was a difference between the groups,
                                           #' we didn't detect this difference and wrongly accepted the null
-                                          #' hypothesis. In other words, we called a gene not differentialy
+                                          #' hypothesis. In genomics, we called a gene not differentialy
                                           #' expressed, when it actually is differentially expressed.
                                           "Correct")
                                           # If it is neither a false positive nor a false negative, it is
@@ -281,10 +281,10 @@ table(pdata$nocorrection_error)
 
 
 #' #### 3. Storey's Q-value ####
-#' In 2001, Storey and Tibshirani (Storey's gradschool mentor) took a more empirical viewpoint
+#' In 2001, Storey and Tibshirani (Storey's gradschool mentor) took a slightly more empirical viewpoint
 #' of multiple hypothesis testing corrections. Their correction extracted some more information
-#' from the data. Instead of explicitly minimizing the errors and maximizing the power, they
-#' determined the false discovery rate (FDR), at each p-value, if that p-value were the significance
+#' from the data. Instead of focusing on the false positive rate, they decided to focus on
+#' the false discovery rate (FDR), at each p-value, if that p-value were the significance
 #' level of the test. The minimum FDR at each p-value is called its q-value.
 
 #' Before we explore the q-value, we need to think about some concepts that Storey and Tibshirani pondered.

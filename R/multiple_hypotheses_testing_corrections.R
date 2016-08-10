@@ -402,8 +402,8 @@ for (rank in pdata$Storeyrank) {
 #' source("https://bioconductor.org/biocLite.R")
 #' biocLite("qvalue")
 #' library(qvalue)
-pdata$qvalues_from_package <- qvalue::qvalue(p = pdata$pvalues)$qvalues
-pdata[which(abs(pdata$qvalues_monotonic - pdata$qvalues_from_package) > 0.01), ]
+#  pdata$qvalues_from_package <- qvalue::qvalue(p = pdata$pvalues)$qvalues
+#  pdata[which(abs(pdata$qvalues_monotonic - pdata$qvalues_from_package) > 0.01), ]
 
 #' Compute the errors
 pdata$qvalue_h0reject <- ifelse(pdata$qvalues_monotonic <= 0.05, "rejecth0", "accepth0")

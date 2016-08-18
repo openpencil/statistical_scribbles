@@ -10,13 +10,17 @@ visualize_distribution <- function(datasub, name_of_column_to_plot, fillwhat = "
   #'
   #' @param datasub dataset which contains the values to be plotted
   #' @param name_of_column_to_plot
-  #'
+  #' @example
+  #' datasub <- ggdata
+  #' name_of_column_to_plot <- "Counts"
   #' @output will give you a graph object that you can either display or save.
   #'
   #' call ggplot, define the dataframe for plotting, define the x and y axis
   p <- ggplot(data = datasub, mapping = aes_string(x = name_of_column_to_plot, y = "..density.."))
   #' draw a density plot
   # p <- p + geom_density(alpha = 0.4, fill = "#80d827", colour = "#d8f3bd")
+  # p <- p + geom_density(alpha = 0.4, fill = "#cccccc", colour = "#d8f3bd")
+  # p <- p + geom_density(aes(alpha = 0.4, fill = group, colour = "#cccccc"))
   if (fillwhat == "blue"){
     p <- p + geom_histogram(bins =  50, fill = "#35aeba", colour = "#d8f3bd")
   } else {
@@ -37,8 +41,8 @@ visualize_distribution <- function(datasub, name_of_column_to_plot, fillwhat = "
 
 #' set.seed(2838)
 
-group1 <- round(rnorm(n = 100, mean = 500, sd = 50), 0)
-group2 <- round(rnorm(n = 100, mean = 525, sd = 40), 0)
+group1 <- round(rnorm(n = 1000, mean = 500, sd = 50), 0)
+group2 <- round(rnorm(n = 1000, mean = 525, sd = 40), 0)
 
 #' ##### 2. Visualize the distribution of data ######
 #' Construct the dataframe for plotting
@@ -55,8 +59,27 @@ p <- p + geom_boxplot(outlier.size = 2.0, fatten = 0.5)
 p <- p + xlab("")
 #' Display the graph
 p
-#' Also display the two count distributions as histograms and colour by group
-visualize_distribution(datasub = ggdata, name_of_column_to_plot = "Counts", fillwhat = "group")
+
+#' #### Let's look at the data again ####
+p <- ggplot(data = ggdata, mapping = aes_string(x = "Counts", y = "..density.."))
+# Draw density plots
+p <- p + geom_density(aes(alpha = 0.4, fill = group))
+# Draw the means
+p <- p + geom_vline(xintercept = c(500, 525), linetype = "dashed",colour = "grey30")
+# Calculate the t-statistic
+tnumerator <- mean(group1) - mean(group2)
+tdenominator <- sqrt((sd(group1))^2/length(group1) + (sd(group2))^2/length(group2))
+tstatistic <- tnumerator / tdenominator
+# Check your work
+r_ttest <- t.test(x = group1, y = group2)
+r_tstatistic <- r_ttest$statistic
+# get probability associated with this t-statistic from the t-distribution of nulls
+# plot the t-distribution of nulls
+random_tstats <- data.frame(tstat = rt(n = 1000, 1998), stringsAsFactors = F)
+t <- ggplot(data = random_tstats, mapping = aes_string(x = "tstat", y = "..density.."))
+t <- t + geom_density(alpha = 0.8, fill = "#80d827", colour = "#d8f3bd")
+# let's plot the observed tstatistic on the t-distribution of nulls
+t <- t + geom_vline(xintercept = tstatistic, linetype = "dashed",colour = "grey30")
 
 #' ##### Stop and reflect #####
 #' What do you observe?

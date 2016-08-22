@@ -143,13 +143,13 @@ alpha <- 0.05
 tstat <- ttest_statistics$statistic
 mu <- 0
 cint <- qt(1 - alpha/2, df)
-
+tstat <- t.test(x = x, y = y)$statistic
 
 #' Buggy lines: L115, L117
 cint <- tstat + c(-cint, cint)
 cint <- mu + cint * stderr
 
-#' Solution: The order of these lines should be inverted
+#' Solution: The order of these lines should be reversed
 #' Line 115 should be L117 and vice versa, i.e. they should be in this order:
 cint <- mu + cint * stderr
 cint <- tstat + c(-cint, cint)

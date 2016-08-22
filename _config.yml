@@ -1,0 +1,12 @@
+# Site settings
+title: Statistical scribbles
+email: jyoti.shankar@icloud.com
+description: > # this means to ignore newlines until "baseurl:"
+  A graphical and code-based walk through statistical thickets.
+baseurl: "/statistical_scribbles/" # the subpath of your site, e.g. /blog
+permalink: /:title/
+relative_permalinks: true
+github_username:  openpencil
+
+# Build settings
+markdown: redcarpet

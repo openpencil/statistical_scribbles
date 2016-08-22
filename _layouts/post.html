@@ -1,0 +1,54 @@
+---
+layout: default
+---
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}{% if page.tags %}{% for tag in page.tags %} • <a href="{{ post.url | prepend: site.baseurl }}/tags/#{{ tag | replace:' ','+' }}">{{ tag }}</a>{% endfor %}{% endif %}</p>
+  </header>
+
+  <article class="post-content">
+    {{ content }}
+  </article>
+
+<div style="border-radius: 25px;
+    border: 1px solid #CCCCCC;
+    padding-top: 20px;
+    width: 100%;">
+	<span style="text-align:center;"><p>
+
+	<a  href="https://twitter.com/intent/tweet?text={{ page.title }}%20%23neat%20%23blog%20http://{{ site.url }}{{ page.url | prepend: site.baseurl }}">
+<svg version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" width="60px" height="60px" viewBox="-315 403 60 60" xml:space="preserve">
+<g transform="translate(-282.32053,-396.30734)">
+	<path fill="#2AA9E0" d="M27.3,810.8c-2.2,1-4.6,1.7-7,1.9c2.6-1.4,4.6-3.8,5.5-6.7c-2.4,1.4-5,2.4-7.9,2.9
+		c-2.2-2.4-5.5-3.8-8.9-3.8c-6.7,0-12.2,5.5-12.2,12.2c0,1,0,1.9,0.2,2.9c-10.3-0.5-19.2-5.5-25.4-13c-1,1.9-1.7,3.8-1.7,6.2
+		c0,4.3,2.2,7.9,5.5,10.3c-1.9,0-3.8-0.7-5.5-1.4c0,0,0,0,0,0.2c0,6,4.3,11,9.8,12c-1,0.2-2.2,0.5-3.4,0.5c-0.7,0-1.7,0-2.4-0.2
+		c1.7,4.8,6,8.4,11.5,8.6c-4.3,3.4-9.6,5.3-15.4,5.3c-1,0-1.9,0-2.9-0.2c5.5,3.6,12,5.5,19,5.5c22.6,0,35-18.7,35-35
+		c0-0.5,0-1,0-1.7C23.5,815.6,25.6,813.4,27.3,810.8L27.3,810.8z"/>
+</g>
+</svg>
+
+	</a>
+	</p>
+	</span>
+</div>
+</div>
+
+
+{% if page.comments %}{% if  site.disqus_shortname  %}
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = '{{ site.disqus_shortname }}';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+{% endif %}{% endif %}

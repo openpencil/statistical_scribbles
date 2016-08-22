@@ -1,0 +1,56 @@
+---
+layout: page
+title: Search
+permalink: /search/
+weight: 3
+---
+
+<style>
+.container-1{
+  vertical-align: middle;
+}
+.container-1 input#search-input{
+  height: 50px;
+  background: #DBDBDB;
+  border: none;
+  font-size: 10pt;
+  float: left;
+  color: #262626;
+  padding-left: 45px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 130%;
+}
+</style>
+
+<div class="home">
+<!-- Html Elements for Search -->
+<div id="search-container" class="container-1">
+	<input type="text" id="search-input" placeholder="Search...">
+</div>
+</div>
+<br><br>
+<br><br>
+<div class="home">
+	<ul id="results-container" class="post-list"></ul>
+</div>
+
+<!-- Script pointing to jekyll-search.js -->
+<script src="{{ site.baseurl }}/assets/js/jekyll-search.js" type="text/javascript"></script>
+    <script type="text/javascript">
+	window.onload = function() {
+	    document.getElementById("search-input").focus();
+	};
+	SimpleJekyllSearch({
+	    searchInput: document.getElementById('search-input'),
+	    resultsContainer: document.getElementById('results-container'),
+	    json: 'http://{{ site.url }}{{ site.baseurl }}/search.json',
+	    searchResultTemplate: '<ul><li><span class="post-meta">{date}</span><h2><span class="post-link"><a href="{url}">{title}</a></h2><p>{desc}</p>',
+	    noResultsText: 'No results found',
+	    limit: 10,
+	    fuzzy: false,
+	    exclude: ['Welcome']
+	})
+    </script>
+

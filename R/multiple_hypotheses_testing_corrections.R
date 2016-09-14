@@ -28,23 +28,21 @@ visualize_distribution <- function(datasub, name_of_column_to_plot, fillwhat = "
   }
   p <- p + geom_vline(xintercept = 0.05, linetype = "dashed",colour = "grey30")
   return(p)
-  }
+}
 
 #' #### SECTION I: What is hypothesis testing? ####
 
 #' ##### 1. Generate some data #####
 #' Seeds represent sampling variability
-
 #' set.seed(149754)
-
 #' set.seed(188549)
-
 #' set.seed(2838)
-
+#' generated data comes from normal distributions
 group1 <- round(rnorm(n = 1000, mean = 500, sd = 50), 0)
 group2 <- round(rnorm(n = 1000, mean = 525, sd = 40), 0)
 
 #' ##### 2. Visualize the distribution of data ######
+
 #' Construct the dataframe for plotting
 ggdata <- data.frame(Counts = c(group1, group2), stringsAsFactors = F)
 #' Add a column with the group label
@@ -60,27 +58,54 @@ p <- p + xlab("")
 #' Display the graph
 p
 
-#' #### Let's look at the data again ####
+#' Let's look a the density distribution of the generated data
 p <- ggplot(data = ggdata, mapping = aes_string(x = "Counts", y = "..density.."))
 # Draw density plots
-p <- p + geom_density(aes(alpha = 0.4, fill = group))
+p <- p + geom_density(aes(fill = group), alpha = 0.4)
 # Draw the means
 p <- p + geom_vline(xintercept = c(500, 525), linetype = "dashed",colour = "grey30")
+p <- p + xlab("Value") + ylab("Density")
+
 # Calculate the t-statistic
 tnumerator <- mean(group1) - mean(group2)
 tdenominator <- sqrt((sd(group1))^2/length(group1) + (sd(group2))^2/length(group2))
 tstatistic <- tnumerator / tdenominator
-# Check your work
+# Check your work with the base function
 r_ttest <- t.test(x = group1, y = group2)
 r_tstatistic <- r_ttest$statistic
-# get probability associated with this t-statistic from the t-distribution of nulls
+#' get the probability value associated with this t-statistic from the t-distribution of nulls
+#' welch_satterthwaite_degrees_of_freedom <- function(vector1_of_values, vector2_of_values){
+  #' calculate the welch's statistic's degrees of freedom
+  #'
+  #' @param vector1_of_values values from the reference group
+  #' @param vector2_of_values values from the test group
+  #' @return a vector with welch's statistic
+  #'
+  #' @examples
+  #' vector1_of_values <- refvector
+  #' vector2_of_values <- testvector
+  #'
+  one <- na.omit(vector1_of_values)
+  two <- na.omit(vector2_of_values)
+  numerator <- ((sd(two)) ^ 2/length(two) + (sd(one)) ^ 2/length(one)) ^ 2
+  denominator <-  (sd(two) ^ 4)/((length(two) ^ 2) * (length(two) - 1)) + (sd(one) ^ 4)/((length(one) ^ 2) * (length(one) - 1))
+  degrees_of_freedom <- numerator/denominator
+  return(degrees_of_freedom)
+}
+#' 2 * pt(q = abs(tstatistic),
+#'    df = welch_satterthwaite_degrees_of_freedom(vector1_of_values = group1, vector2_of_values = group2),
+#'    lower.tail = F)
+#' pval <- 2 * pt(q = -abs(tstatistic),
+#'                df = welch_satterthwaite_degrees_of_freedom(vector1_of_values = group1, vector2_of_values = group2))
+
+# stats:::t.test.default
 # plot the t-distribution of nulls
 random_tstats <- data.frame(tstat = rt(n = 1000, 1998), stringsAsFactors = F)
 t <- ggplot(data = random_tstats, mapping = aes_string(x = "tstat", y = "..density.."))
 t <- t + geom_density(alpha = 0.8, fill = "#80d827", colour = "#d8f3bd")
 # let's plot the observed tstatistic on the t-distribution of nulls
 t <- t + geom_vline(xintercept = tstatistic, linetype = "dashed",colour = "grey30")
-
+t
 #' ##### Stop and reflect #####
 #' What do you observe?
 #' What happens when you regenerate the data with different random number seed?
@@ -123,6 +148,7 @@ dim(pdata)
 head(pdata)
 table(pdata$annot)
 
+
 #' ##### 2. Examine the errors after multiple hypothesis testing #####
 #' We want only 0.05 errors per test. (i.e. <1 errors per test).
 #' BUT when we do 10K tests, these errors compound to 0.05 * 10000 = 500 errors.
@@ -154,11 +180,59 @@ pdata$nocorrection_error <- ifelse(pdata$annot == "nodiff" & pdata$nocorrection_
 
 table(pdata$nocorrection_error)
 
+
+#' If 0.05 is the significance threshold of a test,
+#' then it is also the false-positive rate of a test
+#' or in other words, the probability(one false-positive in 1 test) = 0.05
+#' then expected number of false-positive errors in 1 test is:
+total_expected_errors_1test <- 1 * 0.05
+#' expected number of false-positive errors in 10,000 tests is:
+total_expected_errors_10ktests <- 10000 * 0.05
+
+
+#' Probability(at least one false-positive in 10,000 tests) != 0.05, because errors accumulate.
+#' 1 - Probability(no false-positive in 10,000 tests) [by complement rule for mutually exclusive pair of events]
+#' 1 - (P(no false-positive in 1st test) * P(no false-positive in 2nd test) * P(no false-positive in 3rd test) ...)
+#' [by multiplication rule for independent probabilities]
+#' 1 - ((1 - P(false-positive in 1st test)) * (1 - P(false-positive in 2nd test)) ...)
+#' 1 - (0.95 * 0.95 * 0.95...) (because every test is being evaluated against a 0.05 threshold)
+probability_atleast_1fp_10Ktests <- 1 - (0.95)^10000
+#' How about in 10 tests?
+probability_atleast_1fp_10tests <- 1 - (0.95)^10
+
+#' So if you don't do any corrections and you want to call your results, statistically significant,
+#' you also have to clarify that the "significance" is not at the 0.05 level. For 10 tests,
+#' it is at the 0.4 level. In other words, you have declared all observations <= p = 0.4
+#' as significant.
+
+
 #' ##### Stop and reflect #####
 #' How many errors do you observe?
 #' Given that you know the truth, is this result acceptable to you?
 #' How would your answer change if you had not known the truth?
 #' THINK ALOUD: Can you think of examples where you would accept this result and where you would not?
+
+#' Comparison-wise error rate or individual error rate is alpha for one test
+#' P(not rejecting the true null hypothesis)
+p_falsepositive <- 0.05
+p_truenegative  <- 1 - 0.05
+#' P(not reject all k null hypotheses when in fact all are true): (1-alpha)^k
+p_truenegatives_100tests <- (p_truenegative)^100
+#' Experiment-wise error rate: P(reject one of the k independent H0 when in fact all are true): 1- (1-alpha)^k
+#' = global level or familywise error rate (family of k tests as an experiment)
+#' If k increases, EER also increases.
+#' For alpha = 0.05 and k = 100 tests, EER = 0.994
+eer <- 1 - ((1 - 0.05)^100)
+eer <- 1 - p_truenegatives_100tests
+#' EER is P(one error in k tests)
+#' Expected number of false significant tests:
+p_expectedsignificant <- 100 * 0.05
+#' maximum experiment-wise error rate: P(rejecting falsely at least one true individual null hypothesis | irrespective of which and how many of the other individual null hypothesis are true)
+
+# What constitutes a family of tests?
+# MEER should be under control when the results of a well-defined
+# family of multiple tests should be summarized in
+# one conclusion for the whole experiment.
 
 #' #### SECTION III: What is multiple hypothesis testing correction? ####
 #' We will explore 3 most popular ways of correcting some of the errors

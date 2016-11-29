@@ -4,6 +4,7 @@
 #' ##### Load libraries #####
 library(ggplot2)
 library(doMC)
+library(Hmisc)
 
 #' ##### Functions #####
 visualize_distribution <- function(datasub, name_of_column_to_plot, fillwhat = "blue"){
@@ -30,19 +31,19 @@ visualize_distribution <- function(datasub, name_of_column_to_plot, fillwhat = "
   return(p)
 }
 
-#' #### SECTION I: What is hypothesis testing? ####
-
+#' #### SECTION I: The nuts and bolts a hypothesis test ####
 #' ##### 1. Generate some data #####
 #' Seeds represent sampling variability
 #' set.seed(149754)
 #' set.seed(188549)
 #' set.seed(2838)
 #' generated data comes from normal distributions
+#' here group1 and group2 are labels for the sample
+#' simulated values represent gene-expression values
 group1 <- round(rnorm(n = 1000, mean = 500, sd = 50), 0)
 group2 <- round(rnorm(n = 1000, mean = 525, sd = 40), 0)
 
 #' ##### 2. Visualize the distribution of data ######
-
 #' Construct the dataframe for plotting
 ggdata <- data.frame(Counts = c(group1, group2), stringsAsFactors = F)
 #' Add a column with the group label
@@ -53,11 +54,12 @@ ggdata$group <- c(rep(x = "group1", times = length(group1)),
 p <- ggplot(data = ggdata, mapping = aes(x = group, y = Counts))
 #' Draw a boxplot
 p <- p + geom_boxplot(outlier.size = 2.0, fatten = 0.5)
+#' Or a violinplot
+p <- p + geom_violin()
 #' Remove the label of the x-axis
 p <- p + xlab("")
 #' Display the graph
 p
-
 #' Let's look a the density distribution of the generated data
 p <- ggplot(data = ggdata, mapping = aes_string(x = "Counts", y = "..density.."))
 # Draw density plots
@@ -65,16 +67,52 @@ p <- p + geom_density(aes(fill = group), alpha = 0.4)
 # Draw the means
 p <- p + geom_vline(xintercept = c(500, 525), linetype = "dashed",colour = "grey30")
 p <- p + xlab("Value") + ylab("Density")
+p
 
-# Calculate the t-statistic
+#' ##### 2. Describing the data #####
+#' The five number summary
+fivenumsummary <- fivenum(x = group1)
+names(fivenumsummary) <- c("minimum", "lower-hinge", "median", "upper-hinge", "maximum")
+#' Summary from Hmisc
+describe(x = group1)
+#' Summary from base
+summary(object = group1)
+#' Variance
+var(x = group1)
+var(x = group2)
+#' Ratio fold change
+fold_change_ratio <- mean(group1)/mean(group2)
+#' Difference fold change
+fold_change_difference <- mean(group1) - mean(group2)
+
+#' Stop and think: What is the quantity of interest here?
+#' -- The absolute change in gene-expression?
+#' -- Or the change in gene-expression relative to the underlying noise in the gene?
+
+
+
+#' ##### 3. Compute the test-statistic #####
+#' Ordinary two sample t-statistic
+#' Difference between mean values
 tnumerator <- mean(group1) - mean(group2)
+#' Pooled standard deviation for a single gene
 tdenominator <- sqrt((sd(group1))^2/length(group1) + (sd(group2))^2/length(group2))
 tstatistic <- tnumerator / tdenominator
+
+moderated_tstatistic <- tnumerator / tdenominator + some_constant
+#' some_constant is chosen to
+#' shrink the tstatistic or
+#' minimize the coefficient of variation (sd/mean) of the tstatistic
+#' As this constant is increased the resulting gene-ordering approaches that obtained with fold_change_difference
+
+
+#' #### Easier way to do things in R ####
 # Check your work with the base function
 r_ttest <- t.test(x = group1, y = group2)
 r_tstatistic <- r_ttest$statistic
+
 #' get the probability value associated with this t-statistic from the t-distribution of nulls
-#' welch_satterthwaite_degrees_of_freedom <- function(vector1_of_values, vector2_of_values){
+welch_satterthwaite_degrees_of_freedom <- function(vector1_of_values, vector2_of_values){
   #' calculate the welch's statistic's degrees of freedom
   #'
   #' @param vector1_of_values values from the reference group

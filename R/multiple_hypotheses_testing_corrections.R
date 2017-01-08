@@ -90,7 +90,6 @@ fold_change_difference <- mean(group1) - mean(group2)
 #' -- Or the change in gene-expression relative to the underlying noise in the gene?
 
 
-
 #' ##### 3. Compute the test-statistic #####
 #' Ordinary two sample t-statistic
 #' Difference between mean values
@@ -99,7 +98,7 @@ tnumerator <- mean(group1) - mean(group2)
 tdenominator <- sqrt((sd(group1))^2/length(group1) + (sd(group2))^2/length(group2))
 tstatistic <- tnumerator / tdenominator
 
-moderated_tstatistic <- tnumerator / tdenominator + some_constant
+#' moderated_tstatistic <- tnumerator / tdenominator + some_constant (dependent on all the values of gene-expression)
 #' some_constant is chosen to
 #' shrink the tstatistic or
 #' minimize the coefficient of variation (sd/mean) of the tstatistic
@@ -138,6 +137,9 @@ welch_satterthwaite_degrees_of_freedom <- function(vector1_of_values, vector2_of
 
 # stats:::t.test.default
 # plot the t-distribution of nulls
+# the rt() function returns random draws from the specified t distribution
+# rt(firstarg, secondarg) returns "firstarg" number of random draws from a t-distribution centered at 0 with
+# "secondarg" degrees of freewdome.
 random_tstats <- data.frame(tstat = rt(n = 1000, 1998), stringsAsFactors = F)
 t <- ggplot(data = random_tstats, mapping = aes_string(x = "tstat", y = "..density.."))
 t <- t + geom_density(alpha = 0.8, fill = "#80d827", colour = "#d8f3bd")
